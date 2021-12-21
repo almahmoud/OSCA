@@ -28,6 +28,9 @@ persistence:
   storageClass: nfs
   size: 10Gi
 
+# securityContext:
+#   runAsUser: 1000
+
 image:
   repository: bioconductor/bioconductor_docker
   tag: RELEASE_3_10
@@ -36,12 +39,10 @@ extraVolumes:
 - name: rstudio-conf
   configMap:
     name: rstudio-conf
-    items:
-      - key: "rserver.conf"
-        path: "rserver.conf"
 extraVolumeMounts:
 - name: rstudio-conf
   mountPath: /etc/rstudio/rserver.conf
+  subPath: rserver.conf
 EOF
 
 sed -i "s/example/$GIT_OWNER/g" vals.yaml
