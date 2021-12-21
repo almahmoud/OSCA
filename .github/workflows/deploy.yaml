@@ -1,0 +1,19 @@
+on:
+  workflow_dispatch: {}
+
+jobs:
+  preview:
+    container:
+      image: dtzar/helm-kubectl:latest
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: save kubeconfig
+        shell: bash
+        run: mkdir -p ~/.kube && echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
+      - name: deploy
+        id: deploy
+        run: bash .github/scripts/deploy.sh ${{github.repository}}
+        shell: bash
+      - id: set
+        run: cat rstudioinstalloutput
