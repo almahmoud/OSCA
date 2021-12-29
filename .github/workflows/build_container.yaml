@@ -1,0 +1,22 @@
+name: Build Container Image
+on: push
+jobs:
+  build:
+    name: Build container image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set branch name
+        id: branch
+        run: echo "::set-output name=name::$(BRANCH_NAME=${GITHUB_REF##*/}; echo $BRANCH_NAME)"
+      - name: Build container image
+        run: docker build . -t almahmoud/bioconductor_docker:${{ steps.branch.outputs.name }}
+      - name: Login to DockerHub
+        uses: actions-hub/docker/login@master
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
+      - name: Push to DockerHub with branch name
+        uses: actions-hub/docker@master
+        with:
+          args: push almahmoud/bioconductor_docker:${{ steps.branch.outputs.name }}
