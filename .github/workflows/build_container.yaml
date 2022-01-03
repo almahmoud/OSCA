@@ -8,7 +8,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Set repo name
         id: repo
-        run: echo "::set-output name=name::$(echo $GITHUB_WORKSPACE | awk -F / '{print $5}')"
+        run: echo "::set-output name=name::$(echo $GITHUB_WORKSPACE | awk -F / '{print $5}' | tr '[:upper:]' '[:lower:]')"
       - uses: almahmoud/r-notebook-container-build-action@main
         with:
           image-name: "almahmoud/bioconductor_docker"
