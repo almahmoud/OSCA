@@ -6,11 +6,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Set branch name
+      - name: Set repo name
         id: repo
-        run: echo "::set-output name=name::$(REPO_NAME=${GITHUB_REF##*/}; echo $REPO_NAME)"
-      # - name: Build container image
-      #   run: docker build . -t almahmoud/bioconductor_docker:${{ steps.branch.outputs.name }}
+        run: echo "::set-output name=name::$(echo $GITHUB_REF | awk -F / '{print $3}')"
       - uses: almahmoud/r-notebook-container-build-action@main
         with:
           image-name: "almahmoud/bioconductor_docker"
@@ -22,7 +20,7 @@ jobs:
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
-      - name: Push to DockerHub with branch name
+      - name: Push to DockerHub with repo name
         uses: actions-hub/docker@master
         with:
-          args: push almahmoud/bioconductor_docker:${{ steps.branch.outputs.name }}
+          args: push almahmoud/bioconductor_docker:${{ steps.repo.outputs.name }}
