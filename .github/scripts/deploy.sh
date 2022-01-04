@@ -24,6 +24,10 @@ image:
   repository: git_owner/bioconductor_docker
   tag: git_repo
 
+extraEnv:
+  - name: "DISABLE_AUTH"
+    value: "true"
+
 # extraVolumes:
 # - name: rstudio-conf
 #   configMap:
