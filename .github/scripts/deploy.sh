@@ -3,26 +3,15 @@ IFS='/'
 read -a strarr <<< "$1"
 
 #Print the splitted words
-GIT_OWNER="$(echo ${strarr[0]} | tr -dc '[:alnum:]' | tr '[:upper:]' '[:lower:]')"
-GIT_REPO="$(echo ${strarr[1]} | tr -dc '[:alnum:]' | tr '[:upper:]' '[:lower:]')"
+GIT_OWNER="$(echo ${strarr[0]} | tr '[:upper:]' '[:lower:]' | tr -c '[:alnum:]\n' '-')"
+GIT_REPO="$(echo ${strarr[1]} | tr '[:upper:]' '[:lower:]' | tr -c '[:alnum:]\n' '-')"
 
 cat << "EOF" > vals.yaml
 ingress:
-  enabled: true
-  annotations:
-    kubernetes.io/tls-acme: "true"
-    cert-manager.io/cluster-issuer: letsencrypt-prod
-    nginx.ingress.kubernetes.io/secure-backends: "true"
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
-  hosts:
-    - host: "example.bioconductor.149.165.157.111.nip.io"
-      paths:
-        - /placeholder/rstudio(/|$)(.*)
-  tls:
-     - secretName: "example-bioconductor-149-165-157-111-nip-io-key"
-       hosts:
-         - "example.bioconductor.149.165.157.111.nip.io"
-
+  enabled: false
+service:
+  type: NodePort
+  nodePort: placeholderport
 persistence:
   enabled: true
   storageClass: nfs
@@ -32,22 +21,31 @@ persistence:
 #   runAsUser: 1000
 
 image:
-  repository: bioconductor/bioconductor_docker
-  tag: RELEASE_3_10
+  repository: git_owner/bioconductor_docker
+  tag: git_repo
 
-extraVolumes:
-- name: rstudio-conf
-  configMap:
-    name: rstudio-conf
-extraVolumeMounts:
-- name: rstudio-conf
-  mountPath: /etc/rstudio/rserver.conf
-  subPath: rserver.conf
+# extraVolumes:
+# - name: rstudio-conf
+#   configMap:
+#     name: rstudio-conf
+# extraVolumeMounts:
+# - name: rstudio-conf
+#   mountPath: /etc/rstudio/rserver.conf
+#   subPath: rserver.conf
 EOF
 
-sed -i "s/example/$GIT_OWNER/g" vals.yaml
-sed -i "s/placeholder/$GIT_REPO/g" vals.yaml
+sed -i "s/git_owner/$GIT_OWNER/g" vals.yaml
+sed -i "s/git_repo/$GIT_REPO/g" vals.yaml
 
-helm repo add cloudve https://github.com/CloudVE/helm-charts/raw/master
+RANDOM_PORT=$((32000 + $RANDOM % 2000))
 
-helm upgrade --create-namespace --install -n osca-test-1 rstudio cloudve/rstudio -f vals.yaml > rstudioinstalloutput
+while [ ! -z $(kubectl get service --all-namespaces | grep $RANDOM_PORT) ]
+do
+    RANDOM_PORT=$((32000 + $RANDOM % 2000))
+done
+
+sed -i "s/placeholderport/$RANDOM_PORT/g" vals.yaml
+
+helm repo add cloudve https://github.com/almahmoud/helm-charts/raw/bioc
+
+helm upgrade --create-namespace --install -n "bioc-$GIT_REPO-$RANDOM_PORT" rstudio cloudve/rstudio -f vals.yaml > rstudioinstalloutput
