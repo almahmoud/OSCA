@@ -52,4 +52,4 @@ sed -i "s/placeholderport/$RANDOM_PORT/g" vals.yaml
 
 helm repo add cloudve https://github.com/almahmoud/helm-charts/raw/bioc
 
-helm upgrade --create-namespace --install -n "bioc-$GIT_REPO-$RANDOM_PORT" rstudio cloudve/rstudio -f vals.yaml > rstudioinstalloutput
+helm upgrade --create-namespace --install -n "bioc-$GIT_REPO-$GIT_OWNER" rstudio cloudve/rstudio -f vals.yaml > rstudioinstalloutput
