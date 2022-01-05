@@ -53,3 +53,5 @@ sed -i "s/placeholderport/$RANDOM_PORT/g" vals.yaml
 helm repo add cloudve https://github.com/almahmoud/helm-charts/raw/bioc
 
 helm upgrade --create-namespace --install -n "bioc-$GIT_REPO-$GIT_OWNER" rstudio cloudve/rstudio -f vals.yaml > rstudioinstalloutput
+
+kubectl get -n "bioc-$GIT_REPO-$GIT_OWNER" -o jsonpath="{.spec.ports[0].nodePort}" services rstudio > nodeport
