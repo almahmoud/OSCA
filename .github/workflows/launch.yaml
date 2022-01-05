@@ -28,7 +28,7 @@ jobs:
         shell: bash
       - id: set
         run: |
-          echo ::set-output name=nodeport::$(echo $CLUSTER_ADDRESS:$(cat nodeport))
+          echo ::set-output name=nodeport::$(echo "Your instance will be exposed at: $CLUSTER_ADDRESS:$(cat nodeport)\nThis instance is running docker image: $(cat imagename)")
       - name: Create comment
         uses: peter-evans/create-or-update-comment@v1
         with:
