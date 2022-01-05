@@ -26,13 +26,18 @@ jobs:
         id: deploy
         run: bash .github/scripts/deploy.sh ${{github.repository}}
         shell: bash
-      - id: set
+      - id: port
         run: |
-          echo ::set-output name=nodeport::$(echo "Your instance will be exposed at: $CLUSTER_ADDRESS:$(cat nodeport)\nThis instance is running docker image: $(cat imagename)")
+          echo ::set-output name=nodeport::$(echo "Your instance will be exposed at: $CLUSTER_ADDRESS:$(cat nodeport)")
+      - id: img
+        run: |
+          echo ::set-output name=imagename::$(echo "This instance is running docker image: $(cat imagename)")
       - name: Create comment
         uses: peter-evans/create-or-update-comment@v1
         with:
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
           repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
           issue-number: ${{ github.event.client_payload.github.payload.issue.number }}
-          body: ${{ steps.set.outputs.nodeport }}
+          body: |
+            ${{ steps.port.outputs.nodeport }}
+            ${{ steps.img.outputs.imagename }}
