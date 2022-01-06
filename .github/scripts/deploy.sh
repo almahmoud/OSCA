@@ -16,6 +16,7 @@ persistence:
   enabled: true
   storageClass: nfs
   size: 10Gi
+  mountPath: /home/rstudio/nfs-data
 
 # securityContext:
 #   runAsUser: 1000
