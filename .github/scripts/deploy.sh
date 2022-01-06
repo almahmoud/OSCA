@@ -41,11 +41,14 @@ EOF
 sed -i "s/git_owner/$GIT_OWNER/g" vals.yaml
 sed -i "s/git_repo/$GIT_REPO/g" vals.yaml
 
-RANDOM_PORT=$((32000 + $RANDOM % 2000))
+
+# valid ports are 30000-32767
+# This range will be 31000-32500
+RANDOM_PORT=$((31000 + $RANDOM % 1500))
 
 while [ ! -z $(kubectl get service --all-namespaces | grep $RANDOM_PORT) ]
 do
-    RANDOM_PORT=$((32000 + $RANDOM % 2000))
+    RANDOM_PORT=$((31000 + $RANDOM % 1500))
 done
 
 sed -i "s/placeholderport/$RANDOM_PORT/g" vals.yaml
